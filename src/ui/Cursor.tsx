@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useRef } from "react";
 
 interface CursorPosition {
@@ -62,7 +64,7 @@ export const CustomCursor: React.FC = () => {
     useEffect(() => {
         const animate = () => {
             setTrails((prev) =>
-                prev.map((trail, i) => ({
+                prev.map((trail) => ({
                     ...trail,
                     x: trail.x + (position.x - trail.x) * 0.2,
                     y: trail.y + (position.y - trail.y) * 0.2,

@@ -1,21 +1,14 @@
 "use client";
 
 import React from "react";
-
-import { CustomCursor } from "@/ui/Cursor";
-import { Header } from "@/ui/Header";
 import { HeroSection, AboutSection } from "@/ui/About";
 // import { PortfolioSection } from "@/ui/Portfolio";
 import { GitHubSection } from "@/ui/Github";
-import { Footer } from "@/ui/Footer";
 
 // Main Portfolio Component
 const Portfolio: React.FC = () => {
     return (
         <div className="bg-gray-950 text-white min-h-screen cursor-none overflow-x-hidden">
-            <CustomCursor />
-            <Header />
-
             <main>
                 <HeroSection />
                 <AboutSection />
@@ -23,8 +16,6 @@ const Portfolio: React.FC = () => {
                 {/* <PortfolioSection /> */}
                 <GitHubSection />
             </main>
-
-            <Footer />
 
             {/* Custom Scrollbar Styles */}
             <style jsx global>{`

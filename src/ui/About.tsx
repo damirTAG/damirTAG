@@ -41,13 +41,13 @@ export const HeroSection: React.FC = () => {
 
                 <div className="mt-8 flex justify-center gap-4 text-sm">
                     <a
-                        href="#projects"
+                        href="/projects"
                         className="px-6 py-3 rounded-2xl bg-orange-500 text-white font-medium shadow-md hover:bg-orange-400 transition"
                     >
                         View Projects
                     </a>
                     <a
-                        href="#contact"
+                        href="/contact"
                         className="px-6 py-3 rounded-2xl border border-orange-500 text-orange-400 font-medium hover:bg-orange-500/10 transition"
                     >
                         Contact Me
