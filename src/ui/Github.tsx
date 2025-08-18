@@ -84,7 +84,7 @@ export const GitHubSection: React.FC = () => {
 
                 <div className="text-center mt-12">
                     <a
-                        href="https://github.com/damirTAG"
+                        href="https://github.com/damirTAG?tab=repositories"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center px-6 py-3 rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 text-white font-medium shadow-lg hover:shadow-orange-500/30 transition"

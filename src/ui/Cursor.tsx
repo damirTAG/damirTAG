@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface CursorPosition {
     x: number;
@@ -11,21 +11,25 @@ interface TrailDot {
     opacity: number;
 }
 
-// Custom Cursor Component
 export const CustomCursor: React.FC = () => {
     const [position, setPosition] = useState<CursorPosition>({ x: 0, y: 0 });
     const [trails, setTrails] = useState<TrailDot[]>([]);
     const [isHovering, setIsHovering] = useState(false);
+    const requestRef = useRef<number>(0);
 
     useEffect(() => {
+        const trailLength = 12;
+
         const updateCursor = (e: MouseEvent) => {
             setPosition({ x: e.clientX, y: e.clientY });
 
             setTrails((prev) => {
-                const newTrails = [{ x: e.clientX, y: e.clientY, opacity: 1 }, ...prev.slice(0, 10)];
-                return newTrails.map((trail, index) => ({
+                const newTrail = { x: e.clientX, y: e.clientY, opacity: 1 };
+                const nextTrails = [newTrail, ...prev].slice(0, trailLength);
+
+                return nextTrails.map((trail, index) => ({
                     ...trail,
-                    opacity: ((10 - index) / 10) * 0.6,
+                    opacity: ((trailLength - index) / trailLength) * 0.5,
                 }));
             });
         };
@@ -37,8 +41,11 @@ export const CustomCursor: React.FC = () => {
             }
         };
 
-        const handleMouseOut = () => {
-            setIsHovering(false);
+        const handleMouseOut = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (target.matches("a, button, .hover-target")) {
+                setIsHovering(false);
+            }
         };
 
         document.addEventListener("mousemove", updateCursor);
@@ -52,26 +59,46 @@ export const CustomCursor: React.FC = () => {
         };
     }, []);
 
+    useEffect(() => {
+        const animate = () => {
+            setTrails((prev) =>
+                prev.map((trail, i) => ({
+                    ...trail,
+                    x: trail.x + (position.x - trail.x) * 0.2,
+                    y: trail.y + (position.y - trail.y) * 0.2,
+                }))
+            );
+            requestRef.current = requestAnimationFrame(animate);
+        };
+        requestRef.current = requestAnimationFrame(animate);
+
+        return () => {
+            if (requestRef.current) cancelAnimationFrame(requestRef.current);
+        };
+    }, [position]);
+
     return (
         <>
             {trails.map((trail, index) => (
                 <div
                     key={index}
-                    className="fixed w-2 h-2 bg-orange-500 rounded-full pointer-events-none z-50 mix-blend-difference"
+                    className="fixed w-3 h-3 bg-orange-500 rounded-full pointer-events-none z-50 mix-blend-difference"
                     style={{
-                        left: trail.x - 4,
-                        top: trail.y - 4,
+                        left: trail.x - 6,
+                        top: trail.y - 6,
                         opacity: trail.opacity,
+                        transform: "translate(-50%, -50%)",
                     }}
                 />
             ))}
             <div
-                className={`fixed w-5 h-5 bg-orange-500 rounded-full pointer-events-none z-50 mix-blend-difference transition-transform duration-150 ${
-                    isHovering ? "scale-150" : "scale-100"
+                className={`fixed w-5 h-5 bg-orange-500 rounded-full pointer-events-none z-50 mix-blend-difference transition-transform duration-150 ease-out ${
+                    isHovering ? "scale-150 bg-yellow-400" : "scale-100"
                 }`}
                 style={{
-                    left: position.x - 10,
-                    top: position.y - 10,
+                    left: position.x,
+                    top: position.y,
+                    transform: "translate(-50%, -50%)",
                 }}
             />
         </>
