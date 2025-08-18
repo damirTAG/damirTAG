@@ -9,7 +9,7 @@ export const Footer: React.FC = () => {
     ];
 
     return (
-        <footer className="relative bg-neutral-950">
+        <footer className="relative bg-neutral-950" id="contact">
             <div className="max-w-full mx-auto px-6 py-16 relative z-10">
                 <div className="flex flex-col items-center gap-8">
                     {/* Heading */}

@@ -33,7 +33,7 @@ export const PortfolioSection: React.FC = () => {
     ];
 
     return (
-        <section id="portfolio" className="min-h-screen bg-neutral-950 flex items-center py-20">
+        <section id="projects" className="min-h-screen bg-neutral-950 flex items-center py-20">
             <div className="max-w-6xl mx-auto px-6">
                 <h2 className="text-4xl font-bold text-orange-500 text-center mb-12">Portfolio</h2>
 

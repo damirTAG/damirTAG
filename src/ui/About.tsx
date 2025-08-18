@@ -142,7 +142,7 @@ class Attributes(damirTAG):
         interests   = [
             'code', 'mountains', 'sport', 'tech'
         ]
-        age         = 18
+        age         = ${age}
         location    = "almaty, kz"
         return interests, age, location
 
