@@ -1,5 +1,8 @@
+"use client";
+
 import { MessageCircle, Mail, Github } from "lucide-react";
 import { SilhouetteSvg } from "./Footer.silhouette";
+import { usePathname } from "next/navigation";
 
 export const Footer: React.FC = () => {
     const contactLinks = [
@@ -7,6 +10,11 @@ export const Footer: React.FC = () => {
         { icon: MessageCircle, label: "Telegram", href: "https://t.me/damirtag" },
         { icon: Github, label: "GitHub", href: "https://github.com/damirtag" },
     ];
+    const pathname = usePathname();
+
+    if (pathname === "/photos" || pathname.startsWith("/photos/")) {
+        return null;
+    }
 
     return (
         <footer className="relative bg-neutral-950" id="contact">

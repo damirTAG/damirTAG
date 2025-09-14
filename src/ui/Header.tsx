@@ -3,9 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export const Header: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const pathname = usePathname();
 
     const links = [
         { name: "Home", href: "/" },
@@ -13,8 +15,10 @@ export const Header: React.FC = () => {
         { name: "Contact", href: "/contact" },
     ];
 
+    const headerPositionClass = pathname === "/photos" || pathname.startsWith("/photos/") ? "relative" : "fixed top-0";
+
     return (
-        <header className={`fixed top-0 w-full z-50 transition-all duration-300 bg-transparent backdrop-blur-lg`}>
+        <header className={`${headerPositionClass} w-full z-50 transition-all duration-300 bg-transparent backdrop-blur-lg`}>
             <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
                 <Link href="/" className="text-xl font-extrabold tracking-tight text-orange-500">
                     @damirtag
