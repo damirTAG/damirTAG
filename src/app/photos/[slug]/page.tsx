@@ -20,7 +20,6 @@ export default function PhotoPage() {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    // Загрузка списка фото
     useEffect(() => {
         if (!slug) return;
         setIsLoading(true);
@@ -52,8 +51,6 @@ export default function PhotoPage() {
         [router]
     );
 
-    if (!photo) return null;
-
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (!photo) return;
@@ -69,6 +66,8 @@ export default function PhotoPage() {
         document.addEventListener("keydown", handleKeyDown);
         return () => document.removeEventListener("keydown", handleKeyDown);
     }, [photo, prevPhoto, nextPhoto, handleNavigation, router]);
+
+    if (!photo) return null;
 
     if (isLoading) {
         return (
