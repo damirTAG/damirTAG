@@ -23,13 +23,19 @@ export default function PhotoPage() {
     useEffect(() => {
         if (!slug) return;
         setIsLoading(true);
+
         api.getAll({ limit: 50 })
-            .then((photos) => {
-                const sorted = [...photos].sort((a, b) => b.id - a.id);
+            .then((response) => {
+                const photosArray = response.photos;
+
+                const sorted = [...photosArray].sort((a, b) => b.id - a.id);
                 setPhotosList(sorted);
+
                 const found = sorted.find((p) => encodeURIComponent(p.title.toLowerCase()) === slug);
+
                 if (found) setPhoto(found);
                 else router.push("/404");
+
                 setIsLoading(false);
             })
             .catch(() => {

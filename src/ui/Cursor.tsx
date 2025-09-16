@@ -17,9 +17,21 @@ export const CustomCursor: React.FC = () => {
     const [position, setPosition] = useState<CursorPosition>({ x: 0, y: 0 });
     const [trails, setTrails] = useState<TrailDot[]>([]);
     const [isHovering, setIsHovering] = useState(false);
+    const [isDesktop, setIsDesktop] = useState(true);
     const requestRef = useRef<number>(0);
 
     useEffect(() => {
+        const checkDesktop = () => {
+            setIsDesktop(!("ontouchstart" in window || navigator.maxTouchPoints > 0));
+        };
+        checkDesktop();
+        window.addEventListener("resize", checkDesktop);
+        return () => window.removeEventListener("resize", checkDesktop);
+    }, []);
+
+    useEffect(() => {
+        if (!isDesktop) return;
+
         const trailLength = 12;
 
         const updateCursor = (e: MouseEvent) => {
@@ -59,9 +71,11 @@ export const CustomCursor: React.FC = () => {
             document.removeEventListener("mouseover", handleMouseOver);
             document.removeEventListener("mouseout", handleMouseOut);
         };
-    }, []);
+    }, [isDesktop]);
 
     useEffect(() => {
+        if (!isDesktop) return;
+
         const animate = () => {
             setTrails((prev) =>
                 prev.map((trail) => ({
@@ -77,7 +91,9 @@ export const CustomCursor: React.FC = () => {
         return () => {
             if (requestRef.current) cancelAnimationFrame(requestRef.current);
         };
-    }, [position]);
+    }, [position, isDesktop]);
+
+    if (!isDesktop) return null;
 
     return (
         <>

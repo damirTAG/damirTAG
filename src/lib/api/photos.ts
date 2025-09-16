@@ -1,3 +1,9 @@
+export interface Response {
+    total: number;
+    length: number;
+    photos: Photo[];
+}
+
 export interface Photo {
     id: number;
     title: string;
@@ -33,12 +39,12 @@ export class PhotosAPI {
     }
 
     /** GET /photos?offset=&limit= */
-    async getAll(params?: PaginationParams): Promise<Photo[]> {
+    async getAll(params?: PaginationParams): Promise<Response> {
         const query = new URLSearchParams();
         if (params?.offset !== undefined) query.append("offset", params.offset.toString());
         if (params?.limit !== undefined) query.append("limit", params.limit.toString());
 
-        const res = await fetch(`${API_BASE}/photos?${query.toString()}`, {
+        const res = await fetch(`${API_BASE}/photos/?${query.toString()}`, {
             headers: this.getHeaders(),
         });
         if (!res.ok) throw new Error(`Failed to fetch photos: ${res.statusText}`);
@@ -47,7 +53,7 @@ export class PhotosAPI {
 
     /** POST /photos */
     async create(data: { title: string; url: string; tags: string }): Promise<Photo> {
-        const res = await fetch(`${API_BASE}/photos`, {
+        const res = await fetch(`${API_BASE}/photos/`, {
             method: "POST",
             headers: this.getHeaders(true),
             body: JSON.stringify(data),
