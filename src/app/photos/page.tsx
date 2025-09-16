@@ -42,12 +42,10 @@ const MasonryGrid: React.FC<{
         );
     };
 
-    const sortedPhotos = [...photos].sort((a, b) => b.id - a.id);
-
     return (
         <>
             <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5 gap-6 space-y-6">
-                {sortedPhotos.map((photo) => (
+                {photos.map((photo) => (
                     <div
                         key={photo.id}
                         className="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer shadow-lg bg-neutral-900 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
