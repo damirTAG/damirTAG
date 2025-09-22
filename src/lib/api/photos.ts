@@ -7,6 +7,7 @@ export interface Response {
 export interface Photo {
     id: number;
     title: string;
+    slug: string;
     url: string;
     tags: string;
     created_at: string;
@@ -65,6 +66,15 @@ export class PhotosAPI {
     /** GET /photos/{photo_id} */
     async get(photoId: number): Promise<Photo> {
         const res = await fetch(`${API_BASE}/photos/${photoId}`, {
+            headers: this.getHeaders(),
+        });
+        if (!res.ok) throw new Error(`Failed to fetch photo: ${res.statusText}`);
+        return res.json();
+    }
+
+    /** GET /photos/slug/{slug} */
+    async getBySlug(slug: string): Promise<Photo> {
+        const res = await fetch(`${API_BASE}/photos/slug/${slug}`, {
             headers: this.getHeaders(),
         });
         if (!res.ok) throw new Error(`Failed to fetch photo: ${res.statusText}`);

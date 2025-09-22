@@ -11,76 +11,132 @@ const api = new PhotosAPI();
 export default function PhotoPage() {
     const params = useParams();
     const router = useRouter();
-    const { slug } = params;
+    const slug = params.slug as string;
 
     const [photo, setPhoto] = useState<Photo | null>(null);
     const [photosList, setPhotosList] = useState<Photo[]>([]);
+    const [total, setTotal] = useState(0);
+    const [currentIndex, setCurrentIndex] = useState(-1);
+
     const [showMeta, setShowMeta] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingContext, setIsLoadingContext] = useState(true);
     const [imageLoaded, setImageLoaded] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
+    // Load the main photo
     useEffect(() => {
         if (!slug) return;
+
         setIsLoading(true);
+        setError(null);
 
-        api.getAll({ limit: 50 })
-            .then((response) => {
-                const photosArray = response.photos;
-
-                const sorted = [...photosArray].sort((a, b) => b.id - a.id);
-                setPhotosList(sorted);
-
-                const found = sorted.find((p) => encodeURIComponent(p.title.toLowerCase()) === slug);
-
-                if (found) setPhoto(found);
-                else router.push("/404");
-
+        api.getBySlug(slug)
+            .then((p) => {
+                setPhoto(p);
                 setIsLoading(false);
             })
-            .catch(() => {
+            .catch((err) => {
+                console.error("Error loading photo:", err);
+                setError("Photo not found");
                 setIsLoading(false);
-                router.push("/404");
             });
-    }, [slug, router]);
+    }, [slug]);
 
-    const index = photo ? photosList.findIndex((p) => p.id === photo.id) : -1;
-    const prevPhoto = index > 0 ? photosList[index - 1] : undefined;
-    const nextPhoto = index >= 0 && index < photosList.length - 1 ? photosList[index + 1] : undefined;
+    // Load photos context for navigation
+    useEffect(() => {
+        const loadPhotosContext = async () => {
+            try {
+                setIsLoadingContext(true);
+                // Load a reasonable batch for navigation context
+                const response = await api.getAll({ offset: 0, limit: 50 });
+                setPhotosList(response.photos);
+                setTotal(response.total);
+
+                // Find current photo index
+                if (photo) {
+                    const index = response.photos.findIndex((p) => p.id === photo.id);
+                    setCurrentIndex(index);
+                }
+            } catch (err) {
+                console.error("Error loading photos context:", err);
+            } finally {
+                setIsLoadingContext(false);
+            }
+        };
+
+        if (photo) {
+            loadPhotosContext();
+        }
+    }, [photo]);
+
+    const prevPhoto = currentIndex > 0 ? photosList[currentIndex - 1] : undefined;
+    const nextPhoto = currentIndex >= 0 && currentIndex < photosList.length - 1 ? photosList[currentIndex + 1] : undefined;
 
     const handleNavigation = useCallback(
-        (p?: Photo) => {
-            if (!p) return;
+        (targetPhoto?: Photo) => {
+            if (!targetPhoto) return;
             setImageLoaded(false);
-            router.push(`/photos/${encodeURIComponent(p.title.toLowerCase())}`);
+            setError(null);
+            const newSlug = encodeURIComponent(targetPhoto.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+            router.push(`/photos/${newSlug}`);
         },
         [router]
     );
 
+    // Keyboard navigation
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (!photo) return;
-            if (e.key === "Escape") router.push("/photos");
-            if (e.key === "ArrowLeft") handleNavigation(prevPhoto);
-            if (e.key === "ArrowRight") handleNavigation(nextPhoto);
-            if (e.key === " ") {
-                e.preventDefault();
-                setShowMeta((prev) => !prev);
+            if (isLoading) return;
+
+            switch (e.key) {
+                case "Escape":
+                    router.push("/photos");
+                    break;
+                case "ArrowLeft":
+                    if (prevPhoto) handleNavigation(prevPhoto);
+                    break;
+                case "ArrowRight":
+                    if (nextPhoto) handleNavigation(nextPhoto);
+                    break;
+                case " ":
+                    e.preventDefault();
+                    setShowMeta((prev) => !prev);
+                    break;
             }
         };
 
         document.addEventListener("keydown", handleKeyDown);
         return () => document.removeEventListener("keydown", handleKeyDown);
-    }, [photo, prevPhoto, nextPhoto, handleNavigation, router]);
+    }, [isLoading, prevPhoto, nextPhoto, handleNavigation, router]);
 
-    if (!photo) return null;
-
+    // Loading state
     if (isLoading) {
         return (
             <div className="w-screen h-screen bg-black flex items-center justify-center">
                 <div className="text-center">
                     <Loader2 className="w-12 h-12 text-orange-500 animate-spin mx-auto mb-4" />
                     <p className="text-white text-lg">Loading photo...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (error || !photo) {
+        return (
+            <div className="w-screen h-screen bg-black flex items-center justify-center">
+                <div className="text-center">
+                    <X className="w-16 h-16 text-red-500 mx-auto mb-4" />
+                    <h1 className="text-2xl font-bold text-white mb-2">Photo Not Found</h1>
+                    <p className="text-gray-400 mb-6">The photo you&apos;re looking for doesn&apos;t exist.</p>
+                    <button
+                        onClick={() => router.push("/photos")}
+                        className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                    >
+                        Back to Gallery
+                    </button>
                 </div>
             </div>
         );
@@ -156,6 +212,7 @@ export default function PhotoPage() {
                     fill
                     className={`object-contain transition-opacity duration-300 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
                     onLoad={() => setImageLoaded(true)}
+                    onError={() => setError("Failed to load image")}
                     priority
                 />
             </div>
@@ -176,9 +233,11 @@ export default function PhotoPage() {
                     </button>
 
                     <div className="flex items-center gap-2">
-                        <span className="text-white/60 text-sm hidden sm:inline">
-                            {index + 1} of {photosList.length}
-                        </span>
+                        {!isLoadingContext && total > 0 && (
+                            <span className="text-white/60 text-sm hidden sm:inline">
+                                {currentIndex + 1} of {total}
+                            </span>
+                        )}
 
                         <button
                             onClick={() => setShowMeta(!showMeta)}
@@ -215,17 +274,19 @@ export default function PhotoPage() {
                     </div>
 
                     {/* Tags */}
-                    <div className="flex flex-wrap gap-2 mb-6">
-                        {photo.tags.split(",").map((tag) => (
-                            <span
-                                key={tag.trim()}
-                                className="inline-flex items-center gap-1 bg-orange-500/20 text-orange-300 text-sm px-3 py-1 rounded-full backdrop-blur"
-                            >
-                                <Tag className="w-3 h-3" />
-                                {tag.trim()}
-                            </span>
-                        ))}
-                    </div>
+                    {photo.tags && (
+                        <div className="flex flex-wrap gap-2 mb-6">
+                            {photo.tags.split(",").map((tag) => (
+                                <span
+                                    key={tag.trim()}
+                                    className="inline-flex items-center gap-1 bg-orange-500/20 text-orange-300 text-sm px-3 py-1 rounded-full backdrop-blur"
+                                >
+                                    <Tag className="w-3 h-3" />
+                                    {tag.trim()}
+                                </span>
+                            ))}
+                        </div>
+                    )}
 
                     {/* Action Buttons */}
                     <div className="flex flex-wrap gap-3">
@@ -270,17 +331,19 @@ export default function PhotoPage() {
             )}
 
             {/* Progress indicator */}
-            <div
-                className={`absolute bottom-4 left-1/2 -translate-x-1/2 transition-all duration-300 ${
-                    showMeta ? "opacity-0" : "opacity-100"
-                }`}
-            >
-                <div className="flex items-center gap-2 bg-black/50 px-3 py-1 rounded-full backdrop-blur">
-                    <span className="text-white/60 text-sm">
-                        {index + 1} / {photosList.length}
-                    </span>
+            {!isLoadingContext && total > 0 && (
+                <div
+                    className={`absolute bottom-4 left-1/2 -translate-x-1/2 transition-all duration-300 ${
+                        showMeta ? "opacity-0" : "opacity-100"
+                    }`}
+                >
+                    <div className="flex items-center gap-2 bg-black/50 px-3 py-1 rounded-full backdrop-blur">
+                        <span className="text-white/60 text-sm">
+                            {currentIndex + 1} / {total}
+                        </span>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Instructions overlay */}
             <div

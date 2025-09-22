@@ -277,7 +277,7 @@ const PhotosPage: React.FC = () => {
     }, [allPhotos, debouncedSearch]);
 
     const handlePhotoClick = (photo: Photo) => {
-        router.push(`/photos/${encodeURIComponent(photo.title.toLowerCase())}`);
+        router.push(`/photos/${photo.slug}`);
     };
 
     const handleTagClick = (tag: string) => {
