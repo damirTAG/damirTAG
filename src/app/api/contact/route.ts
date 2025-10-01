@@ -1,5 +1,5 @@
 "use server";
-import { sendMail } from "@/hooks/sendmail";
+import { sendMail } from "@/shared/hooks/sendmail";
 
 export async function POST(req: Request) {
     const { name, email, message } = await req.json();

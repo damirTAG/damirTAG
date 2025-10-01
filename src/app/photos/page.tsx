@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Search, X, Tag, Loader2, Eye, RefreshCw } from "lucide-react";
-import { PhotosAPI, Photo } from "@/lib/api/photos";
+import { PhotosAPI, Photo } from "@/shared/lib/api/photos";
 
 const api = new PhotosAPI();
 

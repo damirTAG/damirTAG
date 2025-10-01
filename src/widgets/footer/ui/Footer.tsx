@@ -1,16 +1,45 @@
 "use client";
 
-import { MessageCircle, Mail, Github } from "lucide-react";
+import { MessageCircle, Mail, Github, MapPin } from "lucide-react";
 import { SilhouetteSvg } from "./Footer.silhouette";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export const Footer: React.FC = () => {
+const Footer: React.FC = () => {
+    const [location, setLocation] = useState<{
+        ip: string;
+        countryCode: string;
+        city: string;
+    } | null>(null);
+
     const contactLinks = [
         { icon: Mail, label: "Email", href: "mailto:damirtagilbayev17@gmail.com" },
         { icon: MessageCircle, label: "Telegram", href: "https://t.me/damirtag" },
         { icon: Github, label: "GitHub", href: "https://github.com/damirtag" },
     ];
+
     const pathname = usePathname();
+
+    const getFlagEmoji = (countryCode: string) => {
+        return countryCode.toUpperCase().replace(/./g, (char) => String.fromCodePoint(127397 + char.charCodeAt(0)));
+    };
+
+    useEffect(() => {
+        const fetchIP = async () => {
+            try {
+                const res = await fetch("/api/ip");
+                const data = await res.json();
+                setLocation({
+                    ip: data.ip,
+                    countryCode: data.country_code,
+                    city: data.city || "Unknown",
+                });
+            } catch (err) {
+                console.error("Error fetching IP info:", err);
+            }
+        };
+        fetchIP();
+    }, []);
 
     if (pathname === "/photos" || pathname.startsWith("/photos/")) {
         return null;
@@ -47,7 +76,16 @@ export const Footer: React.FC = () => {
                     {/* Bottom bar */}
                     <div className="w-full border-t border-neutral-800/50 pt-6 text-center text-xs text-gray-500">
                         © {new Date().getFullYear()} Damir. Built with passion ⚡
+                        {location && (
+                            <div className="mt-2 text-gray-400 flex items-center justify-center gap-2">
+                                <MapPin className="w-3 h-3" />
+                                <span>
+                                    {location.city}, {location.ip} {getFlagEmoji(location.countryCode)}
+                                </span>
+                            </div>
+                        )}
                     </div>
+
                     {/* Mountain Silhouette */}
                     <div className="absolute bottom-0 left-0 w-full">
                         <SilhouetteSvg />
@@ -57,3 +95,5 @@ export const Footer: React.FC = () => {
         </footer>
     );
 };
+
+export default Footer;

@@ -1,9 +1,10 @@
 "use client";
 
 import React from "react";
-import { HeroSection, AboutSection } from "@/ui/About";
+import { Hero as HeroSection } from "@/ui/hero";
+import { About as AboutSection } from "@/ui/about";
 // import { PortfolioSection } from "@/ui/Portfolio";
-import { GitHubSection } from "@/ui/Github";
+import { Github as GitHubSection } from "@/ui/github";
 
 // Main Portfolio Component
 const Portfolio: React.FC = () => {

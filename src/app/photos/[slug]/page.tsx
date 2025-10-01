@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
-import { PhotosAPI, Photo } from "@/lib/api/photos";
+import { PhotosAPI, Photo } from "@/shared/lib/api/photos";
 import { ArrowLeft, ArrowRight, Link2, X, Share2, Tag, Calendar, Eye, EyeOff, Home, Loader2 } from "lucide-react";
 
 const api = new PhotosAPI();

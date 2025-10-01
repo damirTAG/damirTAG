@@ -5,13 +5,14 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 
-export const Header: React.FC = () => {
+const Header: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
 
     const links = [
         { name: "Home", href: "/" },
         { name: "Projects", href: "/projects" },
+        { name: "Photos", href: "/photos" },
         { name: "Contact", href: "/contact" },
     ];
 
@@ -64,3 +65,5 @@ export const Header: React.FC = () => {
         </header>
     );
 };
+
+export default Header;

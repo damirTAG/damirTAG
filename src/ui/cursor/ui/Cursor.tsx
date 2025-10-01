@@ -13,7 +13,7 @@ interface TrailDot {
     opacity: number;
 }
 
-export const CustomCursor: React.FC = () => {
+const CustomCursor: React.FC = () => {
     const [position, setPosition] = useState<CursorPosition>({ x: 0, y: 0 });
     const [trails, setTrails] = useState<TrailDot[]>([]);
     const [isHovering, setIsHovering] = useState(false);
@@ -122,3 +122,5 @@ export const CustomCursor: React.FC = () => {
         </>
     );
 };
+
+export default CustomCursor;

@@ -1,6 +1,6 @@
 import { ExternalLink } from "lucide-react";
 
-export const PortfolioSection: React.FC = () => {
+const PortfolioSection: React.FC = () => {
     const projects = [
         {
             title: "E-commerce Platform",
@@ -71,3 +71,5 @@ export const PortfolioSection: React.FC = () => {
         </section>
     );
 };
+
+export default PortfolioSection;

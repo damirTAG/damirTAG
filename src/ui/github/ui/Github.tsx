@@ -1,7 +1,7 @@
-import { useGitHubRepos } from "@/hooks/gitrepo";
+import { useGitHubRepos } from "@/shared/hooks/gitrepo";
 import { Star, GitFork, Github } from "lucide-react";
 
-export const GitHubSection: React.FC = () => {
+const GitHubSection: React.FC = () => {
     const { repos, loading, error } = useGitHubRepos("damirTAG");
 
     const formatDate = (dateString: string) =>
@@ -97,3 +97,5 @@ export const GitHubSection: React.FC = () => {
         </section>
     );
 };
+
+export default GitHubSection;
